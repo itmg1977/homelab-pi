@@ -1,0 +1,47 @@
+version: '3'
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    volumes:
+      - home-assistant-config:/config
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+    privileged: true
+    ports: 
+      - 8123:8123
+  deconz:
+    image: deconzcommunity/deconz
+    container_name: deconz
+    restart: always
+    ports: 
+      - 80:80
+      - 443:443
+    volumes:
+      - deCONZ:/opt/deCONZ
+      - /etc/localtime:/etc/localtime:ro
+    devices:
+      - /dev/ttyAMA0:/dev/ttyAMA0
+    privileged: true
+    environment:
+      - TZ=Europe/Berlin
+      - DECONZ_WEB_PORT=80
+      - DECONZ_WS_PORT=443
+      - DECONZ_DEVICE=/dev/ttyAMA0
+      - DECONZ_START_VERBOSE=0
+  code-server:
+    image: lscr.io/linuxserver/code-server:latest
+    environment:
+      - PUID=0
+      - PGID=0
+      - DEFAULT_WORKSPACE=/workspace
+    volumes:
+      - vscode-config:/config
+      - /home/bowenwang/workspace:/workspace
+    restart: unless-stopped
+    ports: 
+      - 8443:8443
+volumes:
+  home-assistant-config:
+  deCONZ:
+  vscode-config:
